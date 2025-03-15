@@ -6,12 +6,16 @@ import { MainLayout } from "./MainLayout.jsx";
 import { BrowserRouter as Router, Routes, Route } from "react-router"; // Fix import path
 import { useState } from "react";
 import { useImageFetching } from "./images/useImageFetching.js"; // Move useImageFetching to App
-
+import RegisterPage from "./auth/RegisterPage.jsx";
+import LoginPage from "./auth/LoginPage.jsx";
+import { ProtectedRoute } from "./auth/ProtectedRoute.jsx";
 function App() {
     const [accountName, setAccountName] = useState("John Doe");
+    const [authToken, setAuthToken] = useState(null);
+
     
     // Lifted state: Fetch images once and keep them in App state
-    const { isLoading, fetchedImages } = useImageFetching("");
+    const { isLoading, fetchedImages } = useImageFetching("", 1000, authToken);
 
     return (
         <Router>
@@ -20,14 +24,25 @@ function App() {
                     <Route index element={<Homepage userName={accountName} />} />
                     <Route 
                         path="images" 
-                        element={<ImageGallery isLoading={isLoading} fetchedImages={fetchedImages} />} 
+                        element={<ProtectedRoute authToken={authToken}>
+                                <ImageGallery isLoading={isLoading} fetchedImages={fetchedImages} authToken={authToken}/>
+                                </ProtectedRoute>} 
                     />
-                    <Route path="images/:imageID" element={<ImageDetails />} />
+                    <Route 
+                        path="images/:imageID" 
+                        element={
+                        <ImageDetails/>
+                        } 
+                    />
                     <Route 
                         path="account" 
-                        element={<AccountSettings accountName={accountName} setAccountName={setAccountName} />} 
+                        element={<ProtectedRoute authToken={authToken}>
+                        <AccountSettings accountName={accountName} setAccountName={setAccountName}/>
+                        </ProtectedRoute>} 
                     />
-                </Route>
+                    <Route path="register" element={<RegisterPage setAuthToken={setAuthToken} />} />
+                    <Route path="login" element={<LoginPage setAuthToken={setAuthToken} />} />
+                    </Route>
             </Routes>
         </Router>
     );

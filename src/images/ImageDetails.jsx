@@ -7,7 +7,7 @@ export function ImageDetails() {
     if (isLoading) {
         return <div>Loading...</div>;
     }
-    const imageData = fetchedImages?.[0];
+    const imageData = fetchedImages.find(img => img.id === imageID);
     if (!imageData) {
         return <div><h2>Image not found</h2></div>;
     }
